@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity Web Player | WebGL_Sure</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <style>
+        /* Transparent, tyst template – ingen intern loader/overlay */
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: transparent;
+        }
+
+        #unity-container {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        #unity-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: transparent;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="unity-container">
+        <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+    </div>
+
+    <script src="Build/Sure_test.loader.js"></script>
+    <script>
+    /* @ts-nocheck */  // Tysta VS Code/TS-fel på Unitys #if/#endif-rader
+
+    (function () {
+      const canvas = document.getElementById('unity-canvas');
+
+      // Höj cap för skärpa: 1.5 -> 2
+      const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+      const config = {
+        arguments: [],
+        dataUrl: "Build/Sure_test.data.unityweb",
+        frameworkUrl: "Build/Sure_test.framework.js.unityweb",
+        codeUrl: "Build/Sure_test.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "WebGL_Sure",
+        productVersion: "1.0",
+        matchWebGLToCanvasSize: true,
+        devicePixelRatio: DPR
+      };
+
+      function post(msg) { try { parent.postMessage(msg, '*'); } catch(e){} }
+
+      // Skicka riktig progress till eventuell föräldersida
+      createUnityInstance(canvas, config, function(progress){
+        post({ type: 'unity-progress', value: progress }); // value 0..1
+      }).then(function(instance){
+        window.unityInstance = instance;
+        post({ type: 'unity-ready' }); // klart
+      }).catch(function(err){
+        console.error(err);
+        post({ type: 'unity-error', message: String(err) });
+      });
+    })();
+    </script>
+</body>
+</html>
