@@ -6,7 +6,6 @@
     <title>Unity Web Player | WebGL_Sure</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <style>
-        /* Transparent, tyst template – ingen intern loader/overlay */
         html, body {
             margin: 0;
             height: 100%;
@@ -40,40 +39,42 @@
     /* @ts-nocheck */  // Tysta VS Code/TS-fel på Unitys #if/#endif-rader
 
     (function () {
-      const canvas = document.getElementById('unity-canvas');
+        const canvas = document.getElementById('unity-canvas');
+        const unityContainer = document.getElementById('unity-container');
 
-      // Dynamiskt sätta canvasstorleken till fönstrets storlek
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+        // Dynamiskt sätta canvasstorleken till fönstrets storlek
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-      // Begränsa devicePixelRatio till 1 för bättre prestanda på mobiler
-      const DPR = Math.min(window.devicePixelRatio || 1, 1); // Sätt max till 1 för att minska GPU-belastning
+        // Begränsa devicePixelRatio till 1 för bättre prestanda på mobiler
+        const DPR = Math.min(window.devicePixelRatio || 1, 1);  // Sätt max till 1 för att minska belastningen på mobilen
 
-      const config = {
-        arguments: [],
-        dataUrl: "Build/Sure_test.data.unityweb",
-        frameworkUrl: "Build/Sure_test.framework.js.unityweb",
-        codeUrl: "Build/Sure_test.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "WebGL_Sure",
-        productVersion: "1.0",
-        matchWebGLToCanvasSize: true,
-        devicePixelRatio: DPR
-      };
+        const config = {
+            arguments: [],
+            dataUrl: "Build/Sure_test.data.unityweb",
+            frameworkUrl: "Build/Sure_test.framework.js.unityweb",
+            codeUrl: "Build/Sure_test.wasm.unityweb",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "WebGL_Sure",
+            productVersion: "1.0",
+            matchWebGLToCanvasSize: true,
+            devicePixelRatio: DPR
+        };
 
-      function post(msg) { try { parent.postMessage(msg, '*'); } catch(e){} }
+        function post(msg) { try { parent.postMessage(msg, '*'); } catch(e){} }
 
-      // Skicka riktig progress till eventuell föräldersida
-      createUnityInstance(canvas, config, function(progress){
-        post({ type: 'unity-progress', value: progress }); // value 0..1
-      }).then(function(instance){
-        window.unityInstance = instance;
-        post({ type: 'unity-ready' }); // klart
-      }).catch(function(err){
-        console.error(err);
-        post({ type: 'unity-error', message: String(err) });
-      });
+        // Skickar progress till eventuell föräldersida (kan användas om man vill ha feedback på laddning)
+        createUnityInstance(canvas, config, function(progress) {
+            // Här kan vi lägga till logik för att visa feedback på laddning om vi vill
+            // Just nu laddas spelet stegvis, men vi döljer denna process för användaren
+        }).then(function(instance) {
+            window.unityInstance = instance;
+            post({ type: 'unity-ready' });  // När spelet är klart
+        }).catch(function(err) {
+            console.error(err);
+            post({ type: 'unity-error', message: String(err) });
+        });
     })();
     </script>
 </body>
