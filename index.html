@@ -32,7 +32,7 @@
 </head>
 <body>
     <div id="unity-container">
-        <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+        <canvas id="unity-canvas" tabindex="-1"></canvas>
     </div>
 
     <script src="Build/Sure_test.loader.js"></script>
@@ -42,8 +42,12 @@
     (function () {
       const canvas = document.getElementById('unity-canvas');
 
-      // Höj cap för skärpa: 1.5 -> 2
-      const DPR = Math.min(window.devicePixelRatio || 1, 1);
+      // Dynamiskt sätta canvasstorleken till fönstrets storlek
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // Begränsa devicePixelRatio till 1 för bättre prestanda på mobiler
+      const DPR = Math.min(window.devicePixelRatio || 1, 1); // Sätt max till 1 för att minska GPU-belastning
 
       const config = {
         arguments: [],
